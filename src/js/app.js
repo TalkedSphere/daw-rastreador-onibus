@@ -2,6 +2,7 @@
 const urlAPI = "https://corsproxy.io/?url=https://temporeal.pbh.gov.br/?param=D"
 let posUser = null;
 let map = null;
+const zoomInicial = 13;
 
 // FUNÇÕES \\
 function iniciar() {
@@ -9,12 +10,11 @@ function iniciar() {
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
+                // Guarda a posição atual como do usuário.
                 posUser = {lat: pos.coords.latitude, lon: pos.coords.longitude}
-                map = L.map('map').setView(posUser, 14);
-                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                }).addTo(map);
+                // Cria um mapa Leaflet e configura seus tiles de imagem.
+                criaMapa();
+                // Mensagem de sucesso.
                 console.log("SUCESSO: Usuário Localizado.")
             },
             () => console.log("ERRO: Incapaz de localizar o usuário.")
@@ -22,6 +22,14 @@ function iniciar() {
     }
     // Inicia o ciclo de 20 segundos para o fetch da API.
     setInterval(atualizarOnibus, 20000);
+}
+
+function criaMapa() {
+    map = L.map('map').setView(posUser, zoomInicial);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
 }
 
 // Função para buscar dados e atualizar marcadores
