@@ -11,6 +11,10 @@ function iniciar() {
             (pos) => {
                 posUser = {lat: pos.coords.latitude, lon: pos.coords.longitude}
                 map = L.map('map').setView(posUser, 10);
+                L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                }).addTo(map);
                 console.log("SUCESSO: Usuário Localizado.")
             },
             () => console.log("ERRO: Incapaz de localizar o usuário.")
