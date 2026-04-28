@@ -1,6 +1,7 @@
 // CONSTANTES \\
 const urlAPI = "https://corsproxy.io/?url=https://temporeal.pbh.gov.br/?param=D"
 let posUser = null;
+let map = null;
 
 // FUNÇÕES \\
 function iniciar() {
@@ -9,6 +10,7 @@ function iniciar() {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 posUser = {lat: pos.coords.latitude, lon: pos.coords.longitude}
+                map = L.map('map').setView(posUser, 10);
                 console.log("SUCESSO: Usuário Localizado.")
             },
             () => console.log("ERRO: Incapaz de localizar o usuário.")
