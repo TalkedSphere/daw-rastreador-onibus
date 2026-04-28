@@ -29,3 +29,6 @@ async function atualizarOnibus() {
             console.log("Dados atualizados!");
         });
 }
+
+// Inicia o código
+iniciar();
