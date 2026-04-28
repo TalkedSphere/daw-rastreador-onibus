@@ -7,9 +7,15 @@ function iniciar() {
     // Verifica se o navegador apresenta GPS e pega as coordenadas oferecidas por ele.
     if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(
-            (pos) => posUser = {lat: pos.coords.latitude, lon: pos.coords.longitude}),
-            () => console.log("Incapaz de localizar o usuário.");
+            (pos) => {
+                posUser = {lat: pos.coords.latitude, lon: pos.coords.longitude}
+                console.log("SUCESSO: Usuário Localizado.")
+            },
+            () => console.log("ERRO: Incapaz de localizar o usuário.")
+        );
     }
+    // Inicia o ciclo de 20 segundos para o fetch da API.
+    setInterval(atualizarOnibus, 20000);
 }
 
 // Função para buscar dados e atualizar marcadores
