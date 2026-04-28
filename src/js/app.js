@@ -24,6 +24,7 @@ function iniciar() {
     setInterval(atualizarOnibus, 20000);
 }
 
+
 function criaMapa() {
     map = L.map('map').setView(posUser, zoomInicial);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -31,6 +32,7 @@ function criaMapa() {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 }
+
 
 // Função para buscar dados e atualizar marcadores
 async function atualizarOnibus() {
