@@ -21,17 +21,18 @@ body > div {
     width: 70vw;
     margin-right: 20px;
 
-    background: red;
+    border: 2px solid lightskyblue;
     border-radius: 64px;
 }
 
 #map {
-    height: 180px;
+    height: 100%;
+    border-radius: 64px;
 }
 
 .options {
     width: 20vw;
-    background-color: green;
+    background-color: lightcyan;
     border-radius: 64px;
 
 }

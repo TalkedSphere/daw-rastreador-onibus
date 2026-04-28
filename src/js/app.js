@@ -10,7 +10,7 @@ function iniciar() {
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 posUser = {lat: pos.coords.latitude, lon: pos.coords.longitude}
-                map = L.map('map').setView(posUser, 10);
+                map = L.map('map').setView(posUser, 14);
                 L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     maxZoom: 19,
                     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
