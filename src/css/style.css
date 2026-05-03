@@ -1,38 +1,40 @@
 :root {
-
+    /* Cor de fundo */
+    --background-color: whitesmoke;
 }
 html,
 body {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    height: 100vh;
+    background-color: var(--background-color);
+}
 
-    background-color: #ffffff;
+h2, p, select, option, label {
+    font-family: "Inter", sans-serif;
+}
+
+.low-map {
+    z-index: 1050; /* Para ficar na frente do mapa */
+    transform: translateX(-50%) translateY(-100%); /* Para centralizar & ficar levemente acima da margem inferior do mapa */
+}
+
+.map-title {
+    font-weight: bold;
+    color: slategray;
 }
 
 /* Seleciona os div que são filhos de body */
 body > div {
-    height: 90vh;
     background: none;
-}
-
-.map {
-    width: 70vw;
-    margin-right: 20px;
-
-    border: 2px solid lightskyblue;
-    border-radius: 64px;
 }
 
 #map {
     height: 100%;
+    border: 2px solid #bcd1d9;
     border-radius: 64px;
 }
 
 .options {
     width: 20vw;
+    min-width: 300px;
     background-color: lightcyan;
     border-radius: 64px;
-
 }
