@@ -1,11 +1,11 @@
 // CONSTANTES \\
 
 // API para pegar os dados dos ônibus
-const urlAPI = "https://api.allorigins.win/raw?url=https://temporeal.pbh.gov.br/?param=D" + new Date().getTime(); //"https://corsproxy.io/?url=https://temporeal.pbh.gov.br/?param=D"
+const URL_API = "https://proxy.corsfix.com/?https://temporeal.pbh.gov.br/?param=D"; //"https://corsproxy.io/?url=https://temporeal.pbh.gov.br/?param=D"
 // Zoom inicial do mapa
-const zoomInicial = 13;
+const ZOOM_INICIAL = 13;
 // Tempo entre atualizações dos dados dos ônibus (em milissegundos)
-const tempoEntreAtualizacoes = 13000; // 13 segundos (retirei 7seg por causa do tempo de resposta)
+const INTERVAL_UPDATE = 13000; // 13 segundos (retirei 7seg por causa do tempo de resposta)
 
 // VARIÁVEIS \\
 
@@ -35,9 +35,9 @@ async function iniciar() {
 
     // Inicia o ciclo de 20 segundos para o fetch da API.
     await atualizarOnibus(); // chama pela primeira vez.
-    atualizarOnibus().setInterval(atualizarOnibus, tempoEntreAtualizacoes); // inicia o ciclo
+    setInterval(atualizarOnibus, INTERVAL_UPDATE); // inicia o ciclo
     // poderia, também, ter feito algo como:
-    // atualizarOnibus().then(() => setInterval(atualizarOnibus, tempoEntreAtualizacoes));
+    // atualizarOnibus().then(() => setInterval(atualizarOnibus, INTERVAL_UPDATE));
 }
 
 
@@ -45,7 +45,7 @@ async function iniciar() {
  * Cria o mapa do Leafjet.
  */
 function criaMapa() {
-    map = L.map('map').setView(posUser, zoomInicial);
+    map = L.map('map').setView(posUser, ZOOM_INICIAL);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
@@ -70,11 +70,11 @@ function criarMarkerDeOnibus(pos) {
  */
 async function atualizarOnibus() {
 
-    fetch(urlAPI)
-        .then(response => response.json())
+    fetch(URL_API)
+        // .then(response => response.json())
         .then(data => {
             console.log("Dados atualizados:");
-            console.log(data);
+            console.log(data.json());
             apagarOnibus();
             desenharOnibus(data);
         });
