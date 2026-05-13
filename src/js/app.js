@@ -48,12 +48,12 @@ function criaMapa() {
     map = L.map('map').setView(posUser, ZOOM_INICIAL);
 
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
+        // maxZoom: 19,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
     // Inicializa o grupo de marcadores de ônibus
-    markersOnibus = L.layerGroup().addTo(map);
+    markersOnibus = L.markerClusterGroup();
 }
 
 /**
@@ -61,7 +61,7 @@ function criaMapa() {
  * @param pos posição do ônibus
  */
 function criarMarkerDeOnibus(pos) {
-    L.marker(pos).addTo(markersOnibus);
+    markersOnibus.addLayer(L.circleMarker(pos))
 }
 
 
@@ -71,10 +71,10 @@ function criarMarkerDeOnibus(pos) {
 async function atualizarOnibus() {
 
     fetch(URL_API)
-        // .then(response => response.json())
+        .then(response => response.json())
         .then(data => {
             console.log("Dados atualizados:");
-            console.log(data.json());
+            console.log(data);
             apagarOnibus();
             desenharOnibus(data);
         });
@@ -92,6 +92,11 @@ function apagarOnibus() {
  * @param data dados sobre os ônibus
  */
 function desenharOnibus(data) {
+    apagarOnibus()
+    data.forEach(onibus => {
+        criarMarkerDeOnibus([onibus.LT, onibus.LG])
+    });
+    markersOnibus.addTo(map);
     // aqui, iteraria nos ônibus e desenharia cada um usando criarMarkerDeOnibus(pos)
 }
 
