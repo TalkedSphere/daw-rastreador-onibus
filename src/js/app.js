@@ -1,5 +1,8 @@
 // CONSTANTES \\
 
+//numero das colunas dos dados dos onibus
+const N_COLUNA_CODIGO = 1
+const N_COLUNA_NOME = 2
 //numero de colunas necessario para aparecer no select
 const N_DE_COLUNAS_SUFICIENTE = 3
 // API para pegar os dados dos ônibus
@@ -132,10 +135,10 @@ async function carregarLinhasCSV() {
         if(colunas.length < N_DE_COLUNAS_SUFICIENTE) return
 
         //removo as aspas e os espacos vazios do codigo e do nome da linha
-        const codigoLinha = colunas[1]
+        const codigoLinha = colunas[N_COLUNA_CODIGO]
             .replaceAll('"','')
             .trim()
-        const nomeLinha = colunas[2]
+        const nomeLinha = colunas[N_COLUNA_NOME]
             .replaceAll('"','')
             .trim()
 
