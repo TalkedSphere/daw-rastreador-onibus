@@ -1,5 +1,7 @@
 // CONSTANTES \\
 
+//numero de colunas necessario para aparecer no select
+const N_DE_COLUNAS_SUFICIENTE = 3
 // API para pegar os dados dos ônibus
 const URL_API = "https://proxy.corsfix.com/?https://temporeal.pbh.gov.br/?param=D"; //"https://corsproxy.io/?url=https://temporeal.pbh.gov.br/?param=D"
 // Zoom inicial do mapa
@@ -33,6 +35,7 @@ async function iniciar() {
         );
     }
 
+    await carregarLinhasCSV()
     // Inicia o ciclo de 20 segundos para o fetch da API.
     await atualizarOnibus(); // chama pela primeira vez.
     setInterval(atualizarOnibus, INTERVAL_UPDATE); // inicia o ciclo
@@ -98,6 +101,74 @@ function desenharOnibus(data) {
     });
     markersOnibus.addTo(map);
     // aqui, iteraria nos ônibus e desenharia cada um usando criarMarkerDeOnibus(pos)
+}
+
+async function carregarLinhasCSV() {
+    
+    //carrego o arquivo csv
+    const response = await fetch("/src/data/20260401_ponto_onibus.csv")
+
+    //transformo o conteudo em texto
+    const texto = await response.text()
+
+    //transformo o texto em um array
+    const linhas = texto.split(/\r?\n/)
+
+    //removo o cabeçalho
+    linhas.shift()
+
+    //crio um mapa para evitar linhas duplicadas
+    const linhasUnicas = new Map()
+
+    linhas.forEach(linha => {
+
+        //retorno se a linha estiver vazia
+        if(!linha.trim()) return
+
+        //divido a linha em colunas
+        const colunas = linha.split(";")
+
+        //se faltar colunas, ignoro essa linha
+        if(colunas.length < N_DE_COLUNAS_SUFICIENTE) return
+
+        //removo as aspas e os espacos vazios do codigo e do nome da linha
+        const codigoLinha = colunas[1]
+            .replaceAll('"','')
+            .trim()
+        const nomeLinha = colunas[2]
+            .replaceAll('"','')
+            .trim()
+
+        //se essa linha ja existir no mapa, atualizo ela
+        if(!linhasUnicas.has(codigoLinha)) {
+            linhasUnicas.set(codigoLinha, nomeLinha)
+        }
+    })
+
+    //adiciono a linha no select
+    preencherSelect(linhasUnicas)
+}
+
+function preencherSelect(linhas) {
+
+    //busco o select pelo id
+    const select = document.getElementById("busLineSelect")
+
+    //passo por todas as linhas
+    linhas.forEach((nomeLinha,codigoLinha) => {
+
+        //crio um option pelo js
+        const option = document.createElement("option")
+
+        //defino o valor da opcao
+        option.value = codigoLinha
+
+        //defino o texto visivel
+        option.textContent = `${codigoLinha} | ${nomeLinha}`
+
+        //coloco o elemento dentro do select
+        select.appendChild(option)
+    })
 }
 
 // Inicia o código
