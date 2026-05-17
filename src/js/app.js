@@ -26,6 +26,7 @@ let map = null;
 let markersOnibus;
 // Mapa para guardar as chaves (codigo da linha retornado pela API) e os valores (linha correta do onibus)
 let mapaLinhas = new Map();
+let linhasUnicas = new Map();
 
 // FUNÇÕES \\
 async function iniciar() {
