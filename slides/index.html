@@ -80,10 +80,33 @@
                         <h1 style="color: springgreen;">Leaflet</h1>
                         <p class="fragment"></p>
                     </section>
+
+                    <section>
+                        <h2 style="color: mediumpurple;">Vantagens</h2>
+                        <ul>
+                            <li class="fragment">Código open-source;</li>
+                            <li class="fragment">Extensão fácil com muitos plugins;</li>
+                            <li class="fragment">Documentação limpa e completa.</li>
+                        </ul>
+                    </section>
+
                     <section>
                         <p style="color: white;">Div do mapa</p>
                         <pre><code data-trim class="language-html" style="white-space: pre-wrap; word-break: break-all;">
-<div id="map"></div>
+                            <div id="map"></div>
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <p style="color: white;">Criação o mapa</p>
+                        <pre><code data-trim class="JavaScript" style="white-space: pre-wrap; word-break: break-all;">
+                            function criaMapa() {
+                                map = L.map('map').setView(posUser, ZOOM_INICIAL);
+
+                                L.tileLayer(
+                                    // Definição do tile layer para visualização do mapa
+                                ).addTo(map);
+                            }
                         </code></pre>
                     </section>
                 </section>
