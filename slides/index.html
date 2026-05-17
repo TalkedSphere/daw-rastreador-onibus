@@ -2,29 +2,189 @@
 
 <html>
     <head>
+        <meta charset="UTF-8">
+
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js/dist/reveal.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js/dist/theme/black.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js/dist/theme/dracula.css">
+
+        <!-- Plugin de bloco de código -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/monokai.min.css">
     </head>
 
     <body>
+        <!-- Reveal.js -->
+        <script src="https://cdn.jsdelivr.net/npm/reveal.js/dist/reveal.js"></script>
+        <!-- Plugin de bloco de código -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+
         <div class="reveal">
             <div class="slides">
+                <!--
+                Observações:
 
+                    - Cada tag <section> filha desse div é um slide.
+                        > Cada tag <section> dentro de um slide é uma parte do slide (slide vertical).
+                -->
+
+                <!-- Slide 1 -->
                 <section>
-                    <section>Rastreador de linhas de onibus</section>
-                    <section>sla poha</section>
+                    <h1>Rastreador de Linhas de Ônibus</h1>
+                    <hr>
+                    <h2 style="font-size: 0.4em;">Membros do grupo:</h2>
+                    <p style="font-size: 0.3em;">André Dias, Arthur Fernando, Davi Elias, Francisco Almeida, Frederico Santos e Gabriel Della Gaspera</p>
                 </section>
 
+                <!-- Slide 2 -->
+                <section data-transition="fade-in">
+                    <h1 style="color: deepskyblue;">Front-End</h1>
+                </section>
+
+                <!-- Slide 3 -->
+                <section>
+                    <section>
+                        <h1 style="color: mediumpurple;">Bootstrap</h1>
+                    </section>
+
+                    <section>
+                        <h2 style="color: limegreen;">Benefícios</h2>
+                        <ul>
+                            <li class="fragment">Desenvolvimento rápido;</li>
+                            <li class="fragment">Responsividade integrada;</li>
+                            <li class="fragment">Padronização;</li>
+                            <li class="fragment">Compatibilidade.</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <p>Exemplo de container com Bootstrap Responsivo</p>
+                        <pre><code data-trim class="language-html" style="white-space: pre-wrap; word-break: break-all;">
+                            <div class="col-11 col-md-11">
+                                ...
+                            </div>
+                        </code></pre>
+                    </section>
+
+                    <section>
+                        <p>Exemplo de container com várias classes do Bootstrap</p>
+                        <pre><code data-trim class="language-html" style="white-space: pre-wrap; word-break: break-all;">
+                            <div class="bg-white p-3 rounded shadow-sm">
+                                ...
+                            </div>
+                        </code></pre>
+                    </section>
+                </section>
+
+                <!-- Slide 4 -->
+                <section>
+                    <section>
+                        <h1 style="color: springgreen;">Leaflet</h1>
+                        <p class="fragment"></p>
+                    </section>
+                    <section>
+                        <p style="color: white;">Div do mapa</p>
+                        <pre><code data-trim class="language-html" style="white-space: pre-wrap; word-break: break-all;">
+<div id="map"></div>
+                        </code></pre>
+                    </section>
+                </section>
+
+                <!-- Slide 5 -->
+                <section>
+                    <section>
+                        <h1 style="color: lightcoral;">Escolha da linha</h1>
+
+                        <pre class="fragment"><code data-trim class="language-html" style="white-space: pre-wrap; word-break: break-all;">
+                            <select id="busLineSelect" class="form-select mb-3">
+                                <option value="">Selecione uma linha</option>
+                                ...
+                            </select>
+                        </code></pre>
+
+                        <img class="fragment" src="imagens/menuLinhas.png" style="border-radius: 15px;">
+                    </section>
+
+                    <section>
+                        <h2>Listagem das linhas</h2>
+                        <pre><code data-trim data-line-numbers="1|2|3" class="language-javascript" style="white-space: pre-wrap; word-break: break-all;">
+                        function preencherSelect(linhas) {
+                            linhas.forEach(linha => {
+                                select.appendChild(linha)
+                            })
+                        }
+                        </code></pre>
+                    </section>
+
+                </section>
+
+                <!-- Slide 6 -->
+                <section data-transition="fade-in">
+                    <h1 style="color: gold;">Back-End</h1>
+                </section>
+
+                <!-- Slide 6 -->
+                <section>
+                    <h1 style="color: red;">Problemas que tivemos</h1>
+                    <ul>
+                        <li class="fragment">A API do governo é ruim;</li>
+                        <li class="fragment">O Leaflet pode ser lento em alguns casos;</li>
+                    </ul>
+                </section>
+
+                <!--
+                    =====================================
+                              SLIDES DE EXEMPLO
+                    =====================================
+                -->
+                <section>
+                    <h1>Slides de Exemplo</h1>
+                </section>
+
+                <!-- Exemplo de slide com opções com aparecimento gradual -->
+                <section>
+                    <h2>Tecnologias Usadas</h2>
+                    <ul>
+                        <li class="fragment">HTML5</li>
+                        <li class="fragment">CSS3</li>
+                        <li class="fragment">JavaScript Vanilla</li>
+                    </ul>
+                </section>
+
+                <!-- Exemplo de slide com bloco de código -->
                 <section>
                     <h2>Meu outro slide</h2>
+
+                    <!-- o atributo `data-line-numbers` define o agrupamento de linhas que ficaram
+                    claras ao mesmo tempo. Ou seja, no código abaixo, as linhas 1 e 2 ficarão em foco.
+                    Ao apertar para ir para o próximo slide, a linha 4 ficará em foco. Por último, ao
+                    apertar para ir para o próximo slide, as linhas 6, 7 e 8 ficarão em foco.-->
+
+                    <pre><code data-trim data-line-numbers="1|2-5|7-8" class="language-javascript" style="white-space: pre-wrap; word-break: break-all;"> <!-- esse style é pra ter quebra de linha -->
+                    function login(usuario, senha) {
+                        // Valida os dados
+                        if (!usuario || !senha) {
+                            return "Erro";
+                        }
+
+                        // Autentica na API externa
+                        api.post('/auth', { user: usuario, pass: senha });
+                    }
+                    </code></pre>
                 </section>
+
             </div>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/reveal.js/dist/reveal.js"></script>
 
         <script>
-            Reveal.initialize();
+            Reveal.initialize({
+                plugins: [ RevealHighlight ],
+
+                controls: true,     // Mostra as setas de navegação
+                progress: false,    // Mostra a barra de progresso no fundo
+                center: true,       // Centraliza o conteúdo verticalmente
+                hash: true,        // Adiciona o número do slide na URL
+                transition: 'slide' // Efeitos: none/fade/slide/convex/concave/zoom
+            });
         </script>
     </body>
 </html>
