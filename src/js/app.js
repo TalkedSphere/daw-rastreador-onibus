@@ -1,5 +1,9 @@
 // CONSTANTES \\
 
+// indice em que está o codigo e o numero da linha no bhtrans.csv
+const INDICE_CODIGO_LINHA = 0
+const INDICE_NUMERO_LINHA = 1
+
 //numero das colunas dos dados dos onibus
 const N_COLUNA_CODIGO = 1
 const N_COLUNA_NOME = 2
@@ -20,6 +24,8 @@ let posUser = null;
 let map = null;
 // Array para armazenar os marcadores dos ônibus
 let markersOnibus;
+// Mapa para guardar as chaves (codigo da linha retornado pela API) e os valores (linha correta do onibus)
+let mapaLinhas = new Map();
 
 // FUNÇÕES \\
 async function iniciar() {
@@ -38,7 +44,7 @@ async function iniciar() {
         );
     }
 
-    await carregarLinhasCSV()
+    await carregarLinhasCSV();
     // Inicia o ciclo de 20 segundos para o fetch da API.
     await atualizarOnibus(); // chama pela primeira vez.
     setInterval(atualizarOnibus, INTERVAL_UPDATE); // inicia o ciclo
@@ -75,13 +81,11 @@ function criarMarkerDeOnibus(pos) {
  * Função para buscar dados e atualizar marcadores
  */
 async function atualizarOnibus() {
-
     fetch(URL_API)
         .then(response => response.json())
         .then(data => {
             console.log("Dados atualizados:");
             console.log(data);
-            apagarOnibus();
             desenharOnibus(data);
         });
 }
@@ -99,14 +103,40 @@ function apagarOnibus() {
  */
 function desenharOnibus(data) {
     apagarOnibus()
+
+    const linhaSelecionada = document.getElementById("busLineSelect").value;
+
     data.forEach(onibus => {
-        criarMarkerDeOnibus([onibus.LT, onibus.LG])
+        if (linhaSelecionada === "" || linhaSelecionada === mapaLinhas.get(onibus.LN)) {
+            criarMarkerDeOnibus([onibus.LT, onibus.LG])
+        }
     });
     markersOnibus.addTo(map);
-    // aqui, iteraria nos ônibus e desenharia cada um usando criarMarkerDeOnibus(pos)
 }
 
+
+/**
+ * Função que inicializa o mapa "mapaLinhas" onde a chave é o codigo da linha que a API retorna e o valor o numero da linha
+ */
 async function carregarLinhasCSV() {
+    const response = await fetch("/src/data/bhtrans_bdlinha.csv");
+    const texto = await response.text();
+    const linhas = texto.split(/\r?\n/);
+    linhas.shift();
+
+    linhas.forEach(linha => {
+        if (!linha.trim()) return;
+
+        const colunas = linha.split(";")
+
+        const codigoLinha = colunas[INDICE_CODIGO_LINHA].trim()
+        const numeroLinha = colunas[INDICE_NUMERO_LINHA].trim()
+
+        mapaLinhas.set(codigoLinha, numeroLinha);
+    })
+}
+
+async function carregarPontosCSV() {
     
     //carrego o arquivo csv
     const response = await fetch("/src/data/20260401_ponto_onibus.csv")
@@ -119,9 +149,6 @@ async function carregarLinhasCSV() {
 
     //removo o cabeçalho
     linhas.shift()
-
-    //crio um mapa para evitar linhas duplicadas
-    const linhasUnicas = new Map()
 
     linhas.forEach(linha => {
 
