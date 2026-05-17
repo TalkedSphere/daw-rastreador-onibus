@@ -45,6 +45,7 @@ async function iniciar() {
     }
 
     await carregarLinhasCSV();
+    await carregarPontosCSV();
     // Inicia o ciclo de 20 segundos para o fetch da API.
     await atualizarOnibus(); // chama pela primeira vez.
     setInterval(atualizarOnibus, INTERVAL_UPDATE); // inicia o ciclo
