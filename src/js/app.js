@@ -15,6 +15,8 @@ const URL_API = "https://proxy.corsfix.com/?https://temporeal.pbh.gov.br/?param=
 const ZOOM_INICIAL = 13;
 // Tempo entre atualizações dos dados dos ônibus (em milissegundos)
 const INTERVAL_UPDATE = 13000; // 13 segundos (retirei 7seg por causa do tempo de resposta)
+// Modal que avisa o usuário que está atualizando
+const MODAL_ATUALIZANDO = document.getElementById("modal-carregamento");
 
 // VARIÁVEIS \\
 
@@ -28,6 +30,8 @@ let markersPontos; // ADICIONE ESTA LINHA
 // Mapa para guardar as chaves (codigo da linha retornado pela API) e os valores (linha correta do onibus)
 let mapaLinhas = new Map();
 let linhasUnicas = new Map();
+// Mapeia código da linha para array de pontos
+let pontosPorLinha = new Map();
 
 // FUNÇÕES \\
 async function iniciar() {
@@ -73,24 +77,8 @@ document.getElementById("busLineSelect").addEventListener("change", () => {
 function obterPontosDaLinha(codigoLinha) {
     if (!codigoLinha) return [];
 
-    let pontosDaLinha = [];
-
-    // 'linhasUnicas' guarda as informações que vieram do seu CSV
-    linhasUnicas.forEach((nomeLinha, codigo) => {
-        // Se o código da linha bater com a selecionada, extraímos as coordenadas do seu modelo de dados
-        if (codigo === codigoLinha) {
-            pontosDaLinha.push({
-                codigo: codigo,
-                nome: nomeLinha,
-                // Substitua 'ponto.lat' e 'ponto.lon' pelas propriedades reais 
-                // que você extrair das colunas do seu CSV de pontos
-                lat: ponto.latitude_do_csv, 
-                lon: ponto.longitude_do_csv  
-            });
-        }
-    });
-
-    return pontosDaLinha;
+    // Retorna os pontos armazenados para essa linha (ou nada se não houver)
+    return pontosPorLinha.get(codigoLinha) || [];
 }
 
 /**
@@ -117,18 +105,46 @@ function criarMarkerDeOnibus(pos) {
     markersOnibus.addLayer(L.circleMarker(pos))
 }
 
+// Se estiver atualizando as informações do ônibus, essa variável fica verdadeira
+let atualizandoOnibus = false;
 
 /**
  * Função para buscar dados e atualizar marcadores
  */
 async function atualizarOnibus() {
+    // Se já estiver atualizando, retorna
+    if (atualizandoOnibus) return;
+
+    atualizandoOnibus = true;
+
+    MODAL_ATUALIZANDO.style.display = 'flex';
     fetch(URL_API)
         .then(response => response.json())
         .then(data => {
-            console.log("Dados atualizados:");
-            console.log(data);
             desenharOnibus(data);
-        });
+        }).finally(() => {
+            // Quando termina de atualizar, libera
+            atualizandoOnibus = false;
+            MODAL_ATUALIZANDO.style.display = 'none';
+    });
+}
+
+// Definir a projeção UTM 23S (Belo Horizonte está na zona 23 Sul)
+proj4.defs('EPSG:31983', '+proj=utm +zone=23 +south +datum=SAD69 +units=m +no_defs');
+proj4.defs('EPSG:4326', '+proj=longlat +datum=WGS84 +no_defs');
+
+/**
+ * Recebe as posições em UTM e transforma em latitude/longitude.
+ * @returns {{lon: number, lat: number}}
+ */
+function converterUTMparaLatLon(x, y) {
+    const origem = proj4('EPSG:31983'); // UTM 23S
+    const destino = proj4('EPSG:4326'); // WGS84 (lat/lon)
+    const resultado = proj4(origem, destino, [parseFloat(x), parseFloat(y)]);
+    return {
+        lon: resultado[0],
+        lat: resultado[1]
+    };
 }
 
 /**
@@ -143,20 +159,47 @@ function apagarOnibus() {
  * @param data dados sobre os ônibus
  */
 function desenharOnibus(data) {
-    apagarOnibus()
 
-    const linhaSelecionada = document.getElementById("busLineSelect").value;
+    const linhaSelecionada = document.getElementById("busLineSelect").value
 
-    data.forEach(onibus => {
-        if (linhaSelecionada === "" || linhaSelecionada === mapaLinhas.get(onibus.LN)) {
-            criarMarkerDeOnibus([onibus.LT, onibus.LG])
+    requestAnimationFrame(() => {
+        apagarOnibus();
+        // Filtra os ônibus que vão ser renderizados
+        const onibusFiltrados = data.filter(onibus => {
+            const numeroLinha = mapaLinhas.get(onibus.NL);
+            if (!numeroLinha) return false;
+
+            return linhaSelecionada === "" || linhaSelecionada === numeroLinha.slice(0, -3)
+        });
+
+        // Renderiza em lotes
+        const TAMANHO_LOTE = 200;
+
+        function renderizarLote(indice) {
+            if (indice >= onibusFiltrados.length) {
+                // Acabou, atualiza o mapa e os pontos
+                markersOnibus.addTo(map);
+                const pontosFiltrados = obterPontosDaLinha(linhaSelecionada);
+                mostrarPontosProximos(pontosFiltrados);
+                return;
+            }
+
+            const fim = Math.min(indice + TAMANHO_LOTE, onibusFiltrados.length);
+
+            // Renderiza um lote
+            for (let i = indice; i < fim; i++) {
+                criarMarkerDeOnibus([onibusFiltrados[i].LT, onibusFiltrados[i].LG]);
+            }
+
+            // Agenda o próximo lote para o próximo frame
+            requestAnimationFrame(() => {
+                renderizarLote(fim);
+            });
         }
-    });
-    markersOnibus.addTo(map);
 
-    // [NOVA LINHA]: Atualiza também os pontos fixos junto com a atualização dos ônibus
-    const pontosFiltrados = obterPontosDaLinha(linhaSelecionada);
-    mostrarPontosProximos(pontosFiltrados);
+        renderizarLote(0);
+    });
+
 }
 
 
@@ -218,6 +261,29 @@ async function carregarPontosCSV() {
         if(!linhasUnicas.has(codigoLinha)) {
             linhasUnicas.set(codigoLinha, nomeLinha)
         }
+
+        // Extrai latitude e longitude
+        const geometria = colunas[6].trim()
+        // Obtém os valores a partir do formato
+        const match = geometria.match(/POINT\s*\(\s*([\d.]+)\s+([\d.]+)\s*\)/)
+        if (match) {
+            const coordenadas = converterUTMparaLatLon(match[1], match[2])
+            const longitude = coordenadas.lon
+            const latitude = coordenadas.lat
+
+            // Se a linha não existe em pontosPorLinha, cria um array
+            if (!pontosPorLinha.has(codigoLinha)) {
+                pontosPorLinha.set(codigoLinha, [])
+            }
+
+            // Adiciona o ponto ao array da linha
+            pontosPorLinha.get(codigoLinha).push({
+                codigo: colunas[5].replaceAll('"','').trim(),
+                nome: colunas[4].replaceAll('"','').trim(),
+                lat: latitude,
+                lon: longitude
+            })
+        }
     })
 
     //adiciono a linha no select
@@ -259,45 +325,47 @@ function mostrarPontosProximos(pontosDaLinha) {
     // Se não houver pontos ou o usuário não estiver localizado, cancela
     if (!pontosDaLinha || pontosDaLinha.length === 0 || !posUser) return;
 
-    let pontoMaisProximo = null;
-    let menorDistancia = Infinity;
-    
-    // Instancia a posição atual do usuário no formato Leaflet
-    const posUsuarioLeaflet = L.latLng(posUser.lat, posUser.lon);
+    requestAnimationFrame(() => {
+        let pontoMaisProximo = null;
+        let menorDistancia = Infinity;
 
-    // Primeira passada: Calcular distâncias e descobrir o mais próximo
-    pontosDaLinha.forEach(ponto => {
-        const posPonto = L.latLng(ponto.lat, ponto.lon); 
-        const distancia = posUsuarioLeaflet.distanceTo(posPonto);
+        // Instancia a posição atual do usuário no formato Leaflet
+        const posUsuarioLeaflet = L.latLng(posUser.lat, posUser.lon);
 
-        ponto.distancia = distancia; // Salva a distância no objeto do ponto
+        // Primeira passada: Calcular distâncias e descobrir o mais próximo
+        pontosDaLinha.forEach(ponto => {
+            const posPonto = L.latLng(ponto.lat, ponto.lon);
+            const distancia = posUsuarioLeaflet.distanceTo(posPonto);
 
-        if (distancia < menorDistancia) {
-            menorDistancia = distancia;
-            pontoMaisProximo = ponto;
-        }
-    });
+            ponto.distancia = distancia; // Salva a distância no objeto do ponto
 
-    // Segunda passada: Desenhar todos os pontos no mapa com a diferenciação na cor
-    pontosDaLinha.forEach(ponto => {
-        const ehOMaisProximo = (ponto.codigo === pontoMaisProximo.codigo);
-        const cor = ehOMaisProximo ? "#27ae60" : "#2980b9"; // Verde para o mais perto, Azul para os outros
-        const raio = ehOMaisProximo ? 8 : 5;
+            if (distancia < menorDistancia) {
+                menorDistancia = distancia;
+                pontoMaisProximo = ponto;
+            }
+        });
 
-        L.circleMarker([ponto.lat, ponto.lon], {
-            radius: raio,
-            fillColor: cor,
-            color: "#ffffff",
-            weight: 2,
-            fillOpacity: 1
-        })
-        .bindPopup(
-            ehOMaisProximo 
-            ? `<b>Ponto mais próximo de você!</b><br>Distância: ${Math.round(ponto.distancia)} metros.`
-            : `Ponto Código: ${ponto.codigo}`
-        )
-        .addTo(markersPontos);
-    });
+        // Segunda passada: Desenhar todos os pontos no mapa com a diferenciação na cor
+        pontosDaLinha.forEach(ponto => {
+            const ehOMaisProximo = (ponto.codigo === pontoMaisProximo.codigo);
+            const cor = ehOMaisProximo ? "#27ae60" : "#2980b9"; // Verde para o mais perto, Azul para os outros
+            const raio = ehOMaisProximo ? 8 : 5;
+
+            L.circleMarker([ponto.lat, ponto.lon], {
+                radius: raio,
+                fillColor: cor,
+                color: "#ffffff",
+                weight: 2,
+                fillOpacity: 1
+            })
+                .bindPopup(
+                    ehOMaisProximo
+                        ? `<b>Ponto mais próximo de você!</b><br>Distância: ${Math.round(ponto.distancia)} metros.`
+                        : `Ponto Código: ${ponto.codigo}`
+                )
+                .addTo(markersPontos);
+        });
+    })
 }
 
 // Inicia o código
