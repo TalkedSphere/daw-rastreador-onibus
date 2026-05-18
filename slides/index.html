@@ -173,6 +173,7 @@
                     </section>
                 </section>
 
+                <!-- Slide 8 -->
                 <section>
                     <section>
                         <h2>Filtração das Linhas</h2>
@@ -188,6 +189,45 @@
                     
                     <section>
                         <h2>Por último na hora de desenhar os ônibus, foi utilizado um filtro para exibir apenas a linha desejada.</h2>
+                    </section>
+                </section>
+
+                <!-- Slide 9 -->
+                <section>
+                    <section>
+                        <h2>Desenhar os ônibus</h2>
+                        <ul>
+                            <li class="fragment">MarkerCluster</li>
+                            <li class="fragment">Ignorar as discrepâncias da API</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Código Desenhar</h2>
+                        <pre><code data-trim data-line-numbers="2|4-5|7-12|13" class="language-javascript" style="white-space: pre-wrap; word-break: break-all;"> 
+function desenharOnibus(data) {
+    apagarOnibus()
+
+    const linhaSelecionada = 
+    document.getElementById("busLineSelect").value;
+
+    data.forEach(onibus => {
+        if (linhaSelecionada === "" || 
+            linhaSelecionada === mapaLinhas.get(onibus.LN)) {
+            criarMarkerDeOnibus([onibus.LT, onibus.LG])
+        }
+    });
+    markersOnibus.addTo(map);
+}
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h2>Código Marcador</h2>
+                        <pre><code data-trim data-line-numbers="2|4-5|7-12|13" class="language-javascript" style="white-space: pre-wrap; word-break: break-all;"> 
+function criarMarkerDeOnibus(pos) {
+    markersOnibus.addLayer(L.circleMarker(pos))
+}
+                        </code></pre>
                     </section>
                 </section>
             </div>
