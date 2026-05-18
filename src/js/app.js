@@ -345,26 +345,38 @@ function mostrarPontosProximos(pontosDaLinha) {
             }
         });
 
+        let SabrinaCarpenterPoint = [];
         // Segunda passada: Desenhar todos os pontos no mapa com a diferenciação na cor
         pontosDaLinha.forEach(ponto => {
             const ehOMaisProximo = (ponto.codigo === pontoMaisProximo.codigo);
             const cor = ehOMaisProximo ? "#27ae60" : "#2980b9"; // Verde para o mais perto, Azul para os outros
-            const raio = ehOMaisProximo ? 8 : 5;
+            const raio = ehOMaisProximo ? 10 : 5;
+            const posz = ehOMaisProximo && cor == "#27ae60" ? 10 : -10;
 
-            L.circleMarker([ponto.lat, ponto.lon], {
+            const marcador = L.circleMarker([ponto.lat, ponto.lon], {
                 radius: raio,
                 fillColor: cor,
                 color: "#ffffff",
                 weight: 2,
-                fillOpacity: 1
+                fillOpacity: 1,
+                zIndexOffset: posz 
             })
                 .bindPopup(
                     ehOMaisProximo
                         ? `<b>Ponto mais próximo de você!</b><br>Distância: ${Math.round(ponto.distancia)} metros.`
                         : `Ponto Código: ${ponto.codigo}`
                 )
-                .addTo(markersPontos);
+
+            if(ehOMaisProximo) SabrinaCarpenterPoint = [ponto.lat, ponto.lon];
+            else marcador.addTo(markersPontos);
         });
+        
+        var myCustomIcon = L.icon({
+            iconUrl: '/src/data/SabrinaCarpenterPoint.png',
+            iconSize: [30, 30], 
+        });
+        
+        L.marker(SabrinaCarpenterPoint, {icon: myCustomIcon}).addTo(markersPontos);
     })
 }
 
