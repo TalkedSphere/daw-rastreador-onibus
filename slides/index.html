@@ -153,6 +153,62 @@
                     </ul>
                 </section>
 
+                <section>
+                    <section>
+                        <h2>Filtração das Linhas</h2>
+                    </section>
+
+                    <section>
+                        <h2>Primeiro para filtrar, foi necéssario usar o bhtrans_bdlinhas.csv para poder conectar os dados da API com a linha do ônibus, uma vez que a API retorna um o código da linha e não o número</h2>
+                    </section>
+
+                    <section>
+                        <h2>A partir do csv foi criado um Map que possui como chave o código da linha e como valor o número da linha, assim permitindo uma conexão direta entre a escolha do usuário e o filtro dos dados.</h2>
+                    </section>
+                    
+                    <section>
+                        <h2>Por último na hora de desenhar os ônibus, foi utilizado um filtro para exibir apenas a linha desejada.</h2>
+                    </section>
+                </section>
+
+                <!-- Slide 7 - os ônivus -->
+                <section>
+                    <section>
+                        <h2>Desenhar os ônibus</h2>
+                        <ul>
+                            <li class="fragment">MarkerCluster</li>
+                            <li class="fragment">Ignorar as discrepâncias da API</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Código Desenhar</h2>
+                        <pre><code data-trim data-line-numbers="2|4-5|7-12|13" class="language-javascript" style="white-space: pre-wrap; word-break: break-all;"> 
+function desenharOnibus(data) {
+    apagarOnibus()
+
+    const linhaSelecionada = 
+    document.getElementById("busLineSelect").value;
+
+    data.forEach(onibus => {
+        if (linhaSelecionada === "" || 
+            linhaSelecionada === mapaLinhas.get(onibus.LN)) {
+            criarMarkerDeOnibus([onibus.LT, onibus.LG])
+        }
+    });
+    markersOnibus.addTo(map);
+}
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h2>Código Marcador</h2>
+                        <pre><code data-trim data-line-numbers="2|4-5|7-12|13" class="language-javascript" style="white-space: pre-wrap; word-break: break-all;"> 
+function criarMarkerDeOnibus(pos) {
+    markersOnibus.addLayer(L.circleMarker(pos))
+}
+                        </code></pre>
+                    </section>
+                </section>
                 <!--
                     =====================================
                               SLIDES DE EXEMPLO
@@ -192,24 +248,6 @@
                         api.post('/auth', { user: usuario, pass: senha });
                     }
                     </code></pre>
-                </section>
-
-                <section>
-                    <section>
-                        <h2>Filtração das Linhas</h2>
-                    </section>
-
-                    <section>
-                        <h2>Primeiro para filtrar, foi necéssario usar o bhtrans_bdlinhas.csv para poder conectar os dados da API com a linha do ônibus, uma vez que a API retorna um o código da linha e não o número</h2>
-                    </section>
-
-                    <section>
-                        <h2>A partir do csv foi criado um Map que possui como chave o código da linha e como valor o número da linha, assim permitindo uma conexão direta entre a escolha do usuário e o filtro dos dados.</h2>
-                    </section>
-                    
-                    <section>
-                        <h2>Por último na hora de desenhar os ônibus, foi utilizado um filtro para exibir apenas a linha desejada.</h2>
-                    </section>
                 </section>
             </div>
         </div>
