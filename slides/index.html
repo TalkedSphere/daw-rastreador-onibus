@@ -144,7 +144,7 @@
                     <h1 style="color: gold;">Back-End</h1>
                 </section>
 
-                <!-- Slide 6 -->
+                <!-- Slide 7 -->
                 <section>
                     <h1 style="color: red;">Problemas que tivemos</h1>
                     <ul>
@@ -153,7 +153,7 @@
                     </ul>
                 </section>
 
-                <!-- Slide 7 -->
+                <!-- Slide 8 -->
 
                 <section>
                     <section>
@@ -173,7 +173,7 @@
                     </section>
                 </section>
 
-                <!-- Slide 8 -->
+                <!-- Slide 9 -->
                 <section>
                     <section>
                         <h2>Filtração das Linhas</h2>
@@ -192,7 +192,7 @@
                     </section>
                 </section>
 
-                <!-- Slide 9 -->
+                <!-- Slide 10 -->
                 <section>
                     <section>
                         <h2>Desenhar os ônibus</h2>
@@ -205,28 +205,28 @@
                     <section>
                         <h2>Código Desenhar</h2>
                         <pre><code data-trim data-line-numbers="2|4-5|7-12|13" class="language-javascript" style="white-space: pre-wrap; word-break: break-all;"> 
-function desenharOnibus(data) {
-    apagarOnibus()
+                            function desenharOnibus(data) {
+                                apagarOnibus()
 
-    const linhaSelecionada = 
-    document.getElementById("busLineSelect").value;
+                                const linhaSelecionada = 
+                                document.getElementById("busLineSelect").value;
 
-    data.forEach(onibus => {
-        if (linhaSelecionada === "" || 
-            linhaSelecionada === mapaLinhas.get(onibus.LN)) {
-            criarMarkerDeOnibus([onibus.LT, onibus.LG])
-        }
-    });
-    markersOnibus.addTo(map);
-}
+                                data.forEach(onibus => {
+                                    if (linhaSelecionada === "" || 
+                                        linhaSelecionada === mapaLinhas.get(onibus.LN)) {
+                                        criarMarkerDeOnibus([onibus.LT, onibus.LG])
+                                    }
+                                });
+                                markersOnibus.addTo(map);
+                            }
                         </code></pre>
                     </section>
                     <section>
                         <h2>Código Marcador</h2>
                         <pre><code data-trim data-line-numbers="2|4-5|7-12|13" class="language-javascript" style="white-space: pre-wrap; word-break: break-all;"> 
-function criarMarkerDeOnibus(pos) {
-    markersOnibus.addLayer(L.circleMarker(pos))
-}
+                            function criarMarkerDeOnibus(pos) {
+                                markersOnibus.addLayer(L.circleMarker(pos))
+                            }
                         </code></pre>
                     </section>
                 </section>
