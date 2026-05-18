@@ -251,7 +251,7 @@ function preencherSelect(linhas) {
  * @param {Array} pontosDaLinha Array de objetos contendo os pontos da linha [{lat: -19.9, lon: -43.9, codigo: '123'}]
  */
 function mostrarPontosProximos(pontosDaLinha) {
-    // 1. Limpa os pontos anteriores do mapa
+    // Limpa os pontos anteriores do mapa
     if (markersPontos) {
         markersPontos.clearLayers();
     }
@@ -265,9 +265,9 @@ function mostrarPontosProximos(pontosDaLinha) {
     // Instancia a posição atual do usuário no formato Leaflet
     const posUsuarioLeaflet = L.latLng(posUser.lat, posUser.lon);
 
-    // 2. Primeira passada: Calcular distâncias e descobrir o mais próximo
+    // Primeira passada: Calcular distâncias e descobrir o mais próximo
     pontosDaLinha.forEach(ponto => {
-        const posPonto = L.latLng(ponto.lat, ponto.lon); // Certifique-se que seu CSV extrai lat e lon
+        const posPonto = L.latLng(ponto.lat, ponto.lon); 
         const distancia = posUsuarioLeaflet.distanceTo(posPonto);
 
         ponto.distancia = distancia; // Salva a distância no objeto do ponto
@@ -278,7 +278,7 @@ function mostrarPontosProximos(pontosDaLinha) {
         }
     });
 
-    // 3. Segunda passada: Desenhar todos os pontos no mapa com a diferenciação cromática
+    // Segunda passada: Desenhar todos os pontos no mapa com a diferenciação na cor
     pontosDaLinha.forEach(ponto => {
         const ehOMaisProximo = (ponto.codigo === pontoMaisProximo.codigo);
         const cor = ehOMaisProximo ? "#27ae60" : "#2980b9"; // Verde para o mais perto, Azul para os outros
