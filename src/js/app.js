@@ -24,6 +24,7 @@ let posUser = null;
 let map = null;
 // Array para armazenar os marcadores dos ônibus
 let markersOnibus;
+let markersPontos; // ADICIONE ESTA LINHA
 // Mapa para guardar as chaves (codigo da linha retornado pela API) e os valores (linha correta do onibus)
 let mapaLinhas = new Map();
 let linhasUnicas = new Map();
@@ -51,9 +52,46 @@ async function iniciar() {
     await atualizarOnibus(); // chama pela primeira vez.
     setInterval(atualizarOnibus, INTERVAL_UPDATE); // inicia o ciclo
     // poderia, também, ter feito algo como:
-    // atualizarOnibus().then(() => setInterval(atualizarOnibus, INTERVAL_UPDATE));
+    // atualizarOnibus().then(() => setInterval(atualizarOnibus, INTERVAL_UPDATE));    
+    
 }
 
+// Adiciona o evento de mudança no select
+document.getElementById("busLineSelect").addEventListener("change", () => {
+    // 1. Atualiza os ônibus imediatamente para a nova linha
+    atualizarOnibus();
+    
+    // 2. Filtra e mostra os pontos da linha recém-selecionada
+    const linhaSelecionada = document.getElementById("busLineSelect").value;
+    const pontosFiltrados = obterPontosDaLinha(linhaSelecionada);
+    mostrarPontosProximos(pontosFiltrados);
+});
+
+/**
+ * Filtra a lista global de pontos para retornar apenas os que pertencem à linha selecionada
+ */
+function obterPontosDaLinha(codigoLinha) {
+    if (!codigoLinha) return [];
+
+    let pontosDaLinha = [];
+
+    // 'linhasUnicas' guarda as informações que vieram do seu CSV
+    linhasUnicas.forEach((nomeLinha, codigo) => {
+        // Se o código da linha bater com a selecionada, extraímos as coordenadas do seu modelo de dados
+        if (codigo === codigoLinha) {
+            pontosDaLinha.push({
+                codigo: codigo,
+                nome: nomeLinha,
+                // Substitua 'ponto.lat' e 'ponto.lon' pelas propriedades reais 
+                // que você extrair das colunas do seu CSV de pontos
+                lat: ponto.latitude_do_csv, 
+                lon: ponto.longitude_do_csv  
+            });
+        }
+    });
+
+    return pontosDaLinha;
+}
 
 /**
  * Cria o mapa do Leafjet.
@@ -67,7 +105,8 @@ function criaMapa() {
     }).addTo(map);
 
     // Inicializa o grupo de marcadores de ônibus
-    markersOnibus = L.markerClusterGroup();
+    markersOnibus = L.markerClusterGroup().addTo(map);
+    markersPontos = L.layerGroup().addTo(map);
 }
 
 /**
@@ -114,6 +153,10 @@ function desenharOnibus(data) {
         }
     });
     markersOnibus.addTo(map);
+
+    // [NOVA LINHA]: Atualiza também os pontos fixos junto com a atualização dos ônibus
+    const pontosFiltrados = obterPontosDaLinha(linhaSelecionada);
+    mostrarPontosProximos(pontosFiltrados);
 }
 
 
@@ -201,6 +244,60 @@ function preencherSelect(linhas) {
         //coloco o elemento dentro do select
         select.appendChild(option)
     })
+}
+
+/**
+ * Encontra e desenha os pontos da linha selecionada, destacando o mais próximo do usuário
+ * @param {Array} pontosDaLinha Array de objetos contendo os pontos da linha [{lat: -19.9, lon: -43.9, codigo: '123'}]
+ */
+function mostrarPontosProximos(pontosDaLinha) {
+    // 1. Limpa os pontos anteriores do mapa
+    if (markersPontos) {
+        markersPontos.clearLayers();
+    }
+
+    // Se não houver pontos ou o usuário não estiver localizado, cancela
+    if (!pontosDaLinha || pontosDaLinha.length === 0 || !posUser) return;
+
+    let pontoMaisProximo = null;
+    let menorDistancia = Infinity;
+    
+    // Instancia a posição atual do usuário no formato Leaflet
+    const posUsuarioLeaflet = L.latLng(posUser.lat, posUser.lon);
+
+    // 2. Primeira passada: Calcular distâncias e descobrir o mais próximo
+    pontosDaLinha.forEach(ponto => {
+        const posPonto = L.latLng(ponto.lat, ponto.lon); // Certifique-se que seu CSV extrai lat e lon
+        const distancia = posUsuarioLeaflet.distanceTo(posPonto);
+
+        ponto.distancia = distancia; // Salva a distância no objeto do ponto
+
+        if (distancia < menorDistancia) {
+            menorDistancia = distancia;
+            pontoMaisProximo = ponto;
+        }
+    });
+
+    // 3. Segunda passada: Desenhar todos os pontos no mapa com a diferenciação cromática
+    pontosDaLinha.forEach(ponto => {
+        const ehOMaisProximo = (ponto.codigo === pontoMaisProximo.codigo);
+        const cor = ehOMaisProximo ? "#27ae60" : "#2980b9"; // Verde para o mais perto, Azul para os outros
+        const raio = ehOMaisProximo ? 8 : 5;
+
+        L.circleMarker([ponto.lat, ponto.lon], {
+            radius: raio,
+            fillColor: cor,
+            color: "#ffffff",
+            weight: 2,
+            fillOpacity: 1
+        })
+        .bindPopup(
+            ehOMaisProximo 
+            ? `<b>Ponto mais próximo de você!</b><br>Distância: ${Math.round(ponto.distancia)} metros.`
+            : `Ponto Código: ${ponto.codigo}`
+        )
+        .addTo(markersPontos);
+    });
 }
 
 // Inicia o código
